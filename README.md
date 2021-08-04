@@ -29,6 +29,22 @@ pip install PySimpleGUI
 - Then run `screenrecorder.py` file.
 - That's it :D
 
+## Building standalone executable (.exe) file
+- Make sure you have `PyInstaller` library installed and put [`ffmpeg.exe`](https://ffmpeg.org/download.html) in the same directory.
+```bash
+pip install PyInstaller
+```
+- Building the file
+  - Program only
+```bash
+pyinstaller -F screenrecorder.py
+```
+  - Program + `ffmpeg.exe` (all in one) 
+```bash
+pyinstaller -F --add-data "ffmpeg.exe;." screenrecorder.py
+```
+- The executable (.exe) file will be in `dist` folder.
+
 ## Notes
 - If there are bugs or you want to add new features, feel free to open an issue and I will try to fix/add them if I can.
 
