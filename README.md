@@ -22,28 +22,35 @@ A screen recorder written in `Python` with `ffmpeg` as backend.
 - And bugssss :))
 
 ## Using the source code
-- Make sure you have `PySimpleGUI` library installed and put [`ffmpeg.exe`](https://ffmpeg.org/download.html) in the same directory.
+### Dependencies
+- `PySimpleGUI`: GUI building, https://pysimplegui.readthedocs.io/
+- `PyInstaller`: executable (.exe) file building, https://www.pyinstaller.org/
+- `ffmpeg`: A complete, cross-platform solution to record, convert and stream audio and video, https://www.ffmpeg.org/
+
+### Running
+- Make sure you have `PySimpleGUI` library installed and put `ffmpeg.exe` in the same directory.
 ```bash
 pip install PySimpleGUI
 ```
 - Then run `screenrecorder.py` file.
 - That's it :D
 
-## Building standalone executable (.exe) file
-- Make sure you have `PyInstaller` library installed and put [`ffmpeg.exe`](https://ffmpeg.org/download.html) in the same directory.
+### Building
+Make sure you have `PyInstaller` library installed and put `ffmpeg.exe` in the same directory.
 ```bash
 pip install PyInstaller
 ```
-- Building the file
-  - Program only
+
+#### Building the file
+- Program only
 ```bash
 pyinstaller -F screenrecorder.py
 ```
-  - Program + `ffmpeg.exe` (all in one) 
+- Program + `ffmpeg.exe` (all in one) 
 ```bash
 pyinstaller -F --add-data "ffmpeg.exe;." screenrecorder.py
 ```
-- The executable (.exe) file will be in `dist` folder.
+The executable (.exe) file will be in `dist` folder.
 
 ## Notes
 - If there are bugs or you want to add new features, feel free to open an issue and I will try to fix/add them if I can.
