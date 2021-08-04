@@ -28,3 +28,11 @@ pip install PySimpleGUI
 ```
 - Then run `screenrecorder.py` file.
 - That's it :D
+
+## Notes
+- If there are bugs or you want to add new features, feel free to open an issue and I will try to fix/add them if I can.
+
+## Credits
+- Me :))
+- Python, ffmpeg, PySimpleGUI.
+- Google, Stack Overflow and moreee...
