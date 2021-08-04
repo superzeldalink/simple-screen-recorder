@@ -22,36 +22,6 @@ def getMaxRes():
     return res
 
 
-ffmpegPath = resource_path('ffmpeg.exe')
-
-sg.theme('SystemDefault')
-location = os.path.join(os.getcwd(), 'video.mkv')
-recording = False
-
-# All the stuff inside your window.
-layout = [[sg.Text('Simple Screen Recorder', font=("Helvetica", 13))],
-          [sg.Text('Please click \'Help\' button if you\'re first using this program.')],
-          [sg.Text('File location: '), sg.Text(
-              location + ' (or .mp4)', key='filelocation'), sg.Button('Browse'), sg.Button('View')],
-          [sg.Text('Resolution: '), sg.Combo(
-              getMaxRes(), default_value='Default', key='res'), sg.Text('Quality: '), sg.Slider(
-              (1, 100), resolution=10, orientation='horizontal', default_value='60', key='quality')],
-          [sg.Button('Convert to MP4'), sg.Button('Downscale'), sg.Text(
-              '(using above settings,\nspeed depends on your hardware)')],
-          [sg.Button('Record'), sg.Button('Stop', disabled=True), sg.Button('Help'), sg.Button('Close')]]
-
-
-def toggleButton():
-    global recording
-    recording = not recording
-    window['Record'].update(disabled=recording)
-    window['Close'].update(disabled=recording)
-    window['Convert to MP4'].update(disabled=recording)
-    window['Downscale'].update(disabled=recording)
-    window['Browse'].update(disabled=recording)
-    window['Stop'].update(disabled=not recording)
-
-
 def getRes():
     value = values['res']
     if value == 'Default':
@@ -65,6 +35,36 @@ def getQuality():
     return str(round(-0.25*value+50))
 
 
+def toggleButton():
+    global recording
+    recording = not recording
+    window['Record'].update(disabled=recording)
+    window['Close'].update(disabled=recording)
+    window['Convert to MP4'].update(disabled=recording)
+    window['Downscale'].update(disabled=recording)
+    window['Browse'].update(disabled=recording)
+    window['Stop'].update(disabled=not recording)
+
+
+# Variables and stuffs
+ffmpegPath = resource_path('ffmpeg.exe')
+location = os.path.join(os.getcwd(), 'video.mkv')
+recording = False
+
+
+sg.theme('SystemDefault')
+# All the stuff inside your window.
+layout = [[sg.Text('Simple Screen Recorder', font=("Helvetica", 13))],
+          [sg.Text('Please click \'Help\' button if you\'re first using this program.')],
+          [sg.Text('File location: '), sg.Text(
+              location + ' (or .mp4)', key='filelocation'), sg.Button('Browse'), sg.Button('View')],
+          [sg.Text('Resolution: '), sg.Combo(
+              getMaxRes(), default_value='Default', key='res'), sg.Text('Quality: '), sg.Slider(
+              (1, 100), resolution=10, orientation='horizontal', default_value='60', key='quality')],
+          [sg.Button('Convert to MP4'), sg.Button('Downscale'), sg.Text(
+              '(using above settings,\nspeed depends on your hardware)')],
+          [sg.Button('Record'), sg.Button('Stop', disabled=True), sg.Button('Help'), sg.Button('Close')]]
+
 # Create the Window
 window = sg.Window('Simple Screen Recorder', layout, finalize=True)
 ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 6)
@@ -72,8 +72,31 @@ ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 6)
 while True:
     event, values = window.read()
 
+    if event == 'Browse':
+        new_location = sg.popup_get_file(
+            'Browse', save_as=True, file_types=(('MKV', '*.mkv'),), default_extension="mkv", default_path=location)
+        if new_location != None:
+            location = new_location
+            window['filelocation'].update(location)
+
     if event == 'View':
         os.startfile(os.path.split(location)[0])
+
+    if event == 'Convert to MP4':
+        file = sg.popup_get_file('Open an MKV file', file_types=(
+            ('MKV', '*.mkv'),), default_extension="mkv")
+
+        if file != None:
+            if os.path.isfile(file) == False:
+                sg.popup_ok('File does not exist.')
+            else:
+                convert = subprocess.Popen(
+                    ffmpegPath + ' -i \"'+file+'\" -codec copy -y \".'+str.split(file, '.mkv')[0]+'.mp4\"', shell=True, stdin=subprocess.PIPE)
+                while convert.poll() is None:
+                    pass
+                os.remove(file)
+                sg.popup_ok('Done')
+                os.startfile(os.path.split(file)[0])
 
     if event == 'Downscale':
         file = sg.popup_get_file('Open a video file', file_types=(
@@ -96,33 +119,6 @@ while True:
                     pass
                 sg.popup_ok('Done')
                 os.startfile(os.path.split(new_file)[0])
-
-    if event == 'Help':
-        sg.popup_ok(
-            'Created by Link from HCMUT \n - The program saves video in MKV extension to prevent unexpected interruption. After the recording stopped, the program will automatically convert into MP4 and delete the MKV file. \n - If the program exit unexpectedly, you can click on \'Convert to MP4\' to convert MKV into MP4.\n - \'Downscale\' process can be seen in console log.', title='Help')
-
-    if event == 'Convert to MP4':
-        file = sg.popup_get_file('Open an MKV file', file_types=(
-            ('MKV', '*.mkv'),), default_extension="mkv")
-
-        if file != None:
-            if os.path.isfile(file) == False:
-                sg.popup_ok('File does not exist.')
-            else:
-                convert = subprocess.Popen(
-                    ffmpegPath + ' -i \"'+file+'\" -codec copy -y \".'+str.split(file, '.mkv')[0]+'.mp4\"', shell=True, stdin=subprocess.PIPE)
-                while convert.poll() is None:
-                    pass
-                os.remove(file)
-                sg.popup_ok('Done')
-                os.startfile(os.path.split(file)[0])
-
-    if event == 'Browse':
-        new_location = sg.popup_get_file(
-            'Browse', save_as=True, file_types=(('MKV', '*.mkv'),), default_extension="mkv", default_path=location)
-        if new_location != None:
-            location = new_location
-            window['filelocation'].update(location)
 
     if event == 'Record':
         process = ffmpegPath + ' -f gdigrab -i desktop -crf '+getQuality()+' -framerate 30 -pix_fmt yuv420p -vcodec libx264 -preset ultrafast -vf \"mpdecimate, scale=-1:' + getRes() + '\" -y \"' + \
@@ -160,6 +156,10 @@ while True:
 
     if event == 'Stop':
         stopRec()
+
+    if event == 'Help':
+        sg.popup_ok(
+            'Created by Link from HCMUT \n - The program saves video in MKV extension to prevent unexpected interruption. After the recording stopped, the program will automatically convert into MP4 and delete the MKV file. \n - If the program exit unexpectedly, you can click on \'Convert to MP4\' to convert MKV into MP4.\n - \'Downscale\' process can be seen in console log.', title='Help')
 
     if event == sg.WIN_CLOSED or event == 'Close':  # if user closes window or clicks cancel
         if recording:
