@@ -11,7 +11,7 @@ A screen recorder written in `Python` with `ffmpeg` as backend.
 - Uses less resources. (~15% of CPU, 100MB of RAM)
 - Export video as MKV and auto convert it into MP4 and delete the MKV file. (MKV file won't be corrupted when the program crashes. If it crashed, you can use "Convert to MP4" feature in the program.
 - Resolution, quality of the video can be configured.
-- Small file size (auto bitrate, auto framedrop if duplicated, ~150MB for a 30-minutes video (tested with 1280x1024 screen resolution, quality 60%))
+- Small file size (auto bitrate, auto frame-dropping if duplicated, ~150MB for a 30-minutes video (tested with 1280x1024 screen resolution, quality 60%))
 - "Downscale" feature, allows you to reduce video resolution, quality in order to decrease file size.
 
 ## Disadvantages
