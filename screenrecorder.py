@@ -82,7 +82,7 @@ while True:
     if event == 'View':
         os.startfile(os.path.split(location)[0])
 
-    if event == 'Convert to MP4':
+    if event == 'Convert to MP4 from MKV':
         file = sg.popup_get_file('Open an MKV file', file_types=(
             ('MKV', '*.mkv'),), default_extension="mkv")
 
@@ -100,18 +100,20 @@ while True:
 
     if event == 'Downscale':
         file = sg.popup_get_file('Open a video file', file_types=(
-            ('MP4', '*.mp4'), ('MKV', '*.mkv')), default_extension="mp4")
+            ('Supported video files', '*.mp4 *.mkv *.mov'),),)
 
         if file != None:
             if os.path.isfile(file) == False:
                 sg.popup_ok('File does not exist.')
             else:
-                if file.find('.mkv') == True:
+                if file.find('.mkv') != -1:
                     new_file = file.replace('.mkv', '_downscaled.mp4')
-                else:
+                elif file.find('.mp4') != -1:
                     new_file = file.replace('.mp4', '_downscaled.mp4')
+                else:
+                    new_file = file.replace('.mov', '_downscaled.mp4')
 
-                process = ffmpegPath + ' -i \"' + file + '\" -crf ' + getQuality() + ' -framerate 30 -vcodec libx264 -preset ultrafast -vf \"mpdecimate, scale=-1:' + \
+                process = ffmpegPath + ' -i \"' + file + '\" -crf ' + getQuality() + ' -framerate 30 -vcodec libx264 -c:a copy -preset ultrafast -vf \"mpdecimate, scale=-1:' + \
                     getRes() + '\" -y \"' + new_file + '\"'
                 convert = subprocess.Popen(
                     process, shell=True, stdin=subprocess.PIPE)
