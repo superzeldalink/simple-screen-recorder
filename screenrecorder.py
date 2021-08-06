@@ -108,10 +108,16 @@ while True:
             else:
                 if file.find('.mkv') != -1:
                     new_file = file.replace('.mkv', '_downscaled.mp4')
+                elif file.find('.MKV') != -1:
+                    new_file = file.replace('.MKV', '_downscaled.mp4')
+                elif file.find('.MP4') != -1:
+                    new_file = file.replace('.MP4', '_downscaled.mp4')
                 elif file.find('.mp4') != -1:
                     new_file = file.replace('.mp4', '_downscaled.mp4')
-                else:
+                elif file.find('.mov') != -1:
                     new_file = file.replace('.mov', '_downscaled.mp4')
+                elif file.find('.MOV') != -1:
+                    new_file = file.replace('.MOV', '_downscaled.mp4')
 
                 process = ffmpegPath + ' -i \"' + file + '\" -crf ' + getQuality() + ' -framerate 30 -vcodec libx264 -c:a copy -preset ultrafast -vf \"mpdecimate, scale=-1:' + \
                     getRes() + '\" -y \"' + new_file + '\"'
