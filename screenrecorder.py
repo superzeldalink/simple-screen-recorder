@@ -61,8 +61,7 @@ layout = [[sg.Text('Simple Screen Recorder', font=("Helvetica", 13))],
           [sg.Text('Resolution: '), sg.Combo(
               getMaxRes(), default_value='Default', key='res'), sg.Text('Quality: '), sg.Slider(
               (1, 100), resolution=10, orientation='horizontal', default_value='60', key='quality')],
-          [sg.Button('Convert to MP4'), sg.Button('Downscale'), sg.Text(
-              '(using above settings,\nspeed depends on your hardware)')],
+          [sg.Button('Convert to MP4'), sg.Button('Downscale'), sg.Checkbox('Remove audio', key='removeaudio')],
           [sg.Button('Record'), sg.Button('Stop', disabled=True), sg.Button('Help'), sg.Button('Close')]]
 
 # Create the Window
@@ -119,7 +118,7 @@ while True:
                 elif file.find('.MOV') != -1:
                     new_file = file.replace('.MOV', '_downscaled.mp4')
 
-                process = ffmpegPath + ' -i \"' + file + '\" -crf ' + getQuality() + ' -framerate 30 -vcodec libx264 -c:a copy -preset ultrafast -vf \"mpdecimate, scale=-1:' + \
+                process = ffmpegPath + ' -i \"' + file + '\" -crf ' + getQuality() + ' -vcodec libx264 ' + ('-an ' if values['removeaudio'] == True else '') + '-preset ultrafast -vf \"mpdecimate, scale=-1:' + \
                     getRes() + '\" -y \"' + new_file + '\"'
                 convert = subprocess.Popen(
                     process, shell=True, stdin=subprocess.PIPE)
@@ -129,7 +128,7 @@ while True:
                 os.startfile(os.path.split(new_file)[0])
 
     if event == 'Record':
-        process = ffmpegPath + ' -f gdigrab -i desktop -crf '+getQuality()+' -framerate 30 -pix_fmt yuv420p -vcodec libx264 -preset ultrafast -vf \"mpdecimate, scale=-1:' + getRes() + '\" -y \"' + \
+        process = ffmpegPath + ' -f gdigrab -i desktop -crf '+getQuality()+' -pix_fmt yuv420p -vcodec libx264 -preset ultrafast -vf \"mpdecimate, scale=-1:' + getRes() + '\" -y \"' + \
             location + '\"'
         print(process)
         if os.path.isfile(location) or os.path.isfile(location.replace('mkv', 'mp4')):
@@ -167,7 +166,7 @@ while True:
 
     if event == 'Help':
         sg.popup_ok(
-            'Created by Link from HCMUT \n - The program saves video in MKV extension to prevent unexpected interruption. After the recording stopped, the program will automatically convert into MP4 and delete the MKV file. \n - If the program exit unexpectedly, you can click on \'Convert to MP4\' to convert MKV into MP4.\n - \'Downscale\' process can be seen in console log.', title='Help')
+            'Created by Link from HCMUT \n - The program saves video in MKV extension to prevent unexpected interruption. After the recording stopped, the program will automatically convert into MP4 and delete the MKV file. \n - If the program exit unexpectedly, you can click on \'Convert to MP4\' to convert MKV into MP4.\n - \'Downscale\' process seems stucked but can be seen in console log, please be patient when using it.', title='Help')
 
     if event == sg.WIN_CLOSED or event == 'Close':  # if user closes window or clicks cancel
         if recording:
